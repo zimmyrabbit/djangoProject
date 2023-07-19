@@ -1,8 +1,8 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from zimmyrabbit import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('zimmyrabbit/', views.index),
+    path('zimmyrabbit/', include('zimmyrabbit.urls')),
 ]
