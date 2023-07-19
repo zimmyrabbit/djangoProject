@@ -1,0 +1,7 @@
+<H1>JENKINS</H1>
+
+<form action="{%url 'zimmyrabbit:check_model'%}" method='post'>
+    {% csrf_token %}
+    <textarea name="content" id="content" row="15"></textarea>
+    <input type="submit" value="검증">
+</form>
