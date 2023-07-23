@@ -5,3 +5,13 @@
     <textarea name="content" id="content" row="15"></textarea>
     <input type="submit" value="검증">
 </form>
+
+{% if context_list %}
+    <ul>
+    {% for context in context_list %}
+        <li>{{ context.subject }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>X</p>
+{% endif %}

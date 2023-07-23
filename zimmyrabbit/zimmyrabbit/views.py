@@ -13,6 +13,8 @@ def check_model(request) :
     scontent = sorted(set(content.split()))
     print(scontent)
 
+    context = {"data": scontent}
+
     '''
     command = ''
     output = subprocess.check_output(command, shell=True, text=True)
@@ -37,9 +39,9 @@ def check_model(request) :
     print("Accounts:", accounts)
     print("Dates:", dates)
     print("Commit Logs:", commit_logs)
-
     '''
-
+    
+    '''
     url = ''
     username = ''
     password = '' #token
@@ -74,5 +76,5 @@ def check_model(request) :
             print(f"JSON 디코드 오류 발생: {json_err}")
     else:
         print(f"API 호출 실패 - 상태 코드: {response.status_code}")
-
+    '''
     return redirect('zimmyrabbit:index')
