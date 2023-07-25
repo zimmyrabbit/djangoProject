@@ -31,6 +31,7 @@
     <H1>Jungkins</H1>
         <textarea class="content"></textarea>
         <input type="button" class="btnAjax" value="TEST" data-url="{% url 'zimmyrabbit:check_model'%}">
+        <div class="svnlog"></div>
 </body>
 </html>
 
@@ -53,8 +54,19 @@
                 'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
             },
             success : function(data) {
-                console.log(data);
-                alert(data.data[0])
+                
+                let str = '';
+                str += '<table>';
+
+                for(var i=0; i<data.account.length; i++) {
+                    str += "  <tr>";
+			 		str += "	  <td>" + data.account[i] + "</td>";
+			 		str += "   	  <td>" + data.commitLogs[i] + "</td>";
+                    str += "   	  <td>" + data.dates[i] + "</td>";
+			 		str += "  </tr>"
+                }
+                str += '</table>'
+                $(".svnlog").html(str);
             },
             error: function() {
                 console.log('error');

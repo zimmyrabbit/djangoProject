@@ -24,8 +24,9 @@ def check_model(request) :
     content = jsonObject.get('content')
     scontent = sorted(set(content.split()))
 
-    '''
-    command = ''
+    
+    command = 'svn log --limit 10 \"D:/DevHomes/DevKMIProject/KMIProject/application/components/ast/' + content + '\"'
+    print(command)
     output = subprocess.check_output(command, shell=True, text=True)
 
     # 결과 파싱하여 계정, 날짜, 커밋로그 저장
@@ -48,37 +49,11 @@ def check_model(request) :
     print("Accounts:", accounts)
     print("Dates:", dates)
     print("Commit Logs:", commit_logs)
-    '''
+    
 
-    context = {"data": scontent}
+    context = {'account': accounts, 'dates': dates, 'commitLogs' : commit_logs}
 
     return JsonResponse(context)
-
-    '''
-    command = ''
-    output = subprocess.check_output(command, shell=True, text=True)
-
-    # 결과 파싱하여 계정, 날짜, 커밋로그 저장
-    commits = []
-    lines = output.split('------------------------------------------------------------------------')
-
-    accounts = []
-    dates = []
-    commit_logs = []
-
-    for i in range(1, len(lines)-1):
-        line = lines[i].split(" | ")
-        account = line[1].strip()
-        date = line[2].strip()
-        commit_log = line[-1].strip()
-        accounts.append(account)
-        dates.append(date)
-        commit_logs.append(commit_log)
-
-    print("Accounts:", accounts)
-    print("Dates:", dates)
-    print("Commit Logs:", commit_logs)
-    '''
     
     '''
     url = ''
