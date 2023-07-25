@@ -1,17 +1,65 @@
-<H1>JENKINS</H1>
+{% load static %}
 
-<form action="{%url 'zimmyrabbit:check_model'%}" method='post'>
-    {% csrf_token %}
-    <textarea name="content" id="content" row="15"></textarea>
-    <input type="submit" value="검증">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jungkins</title>
+    <style>
+        img {
+            display: inline;
+            width: 100px;
+        }
+        h1 {
+            display: inline;
+        }
+        .content {
+            width : 200px;
+            height: 200px;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script>
+        // CSRF 토큰을 JavaScript 변수에 저장
+        const csrftoken = '{{ csrf_token }}';
+    </script>
+</head>
+<body>
+    <img src="{% static 'images/jungkins.png' %}" alt="jungkins">
+    <H1>Jungkins</H1>
+        <textarea class="content"></textarea>
+        <input type="button" class="btnAjax" value="TEST" data-url="{% url 'zimmyrabbit:check_model'%}">
+</body>
+</html>
 
-{% if context_list %}
-    <ul>
-    {% for context in context_list %}
-        <li>{{ context.subject }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>X</p>
-{% endif %}
+<script>
+    let btnAjax = document.querySelector('.btnAjax');
+
+    btnAjax.addEventListener('click', e=> {
+        let content = document.querySelector('.content').value;
+        let param = {
+            'content' : content,
+        }
+
+        let url = btnAjax.getAttribute('data-url');
+
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(param),
+            headers: {
+                'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
+            },
+            success : function(data) {
+                console.log(data);
+                alert(data.data[0])
+            },
+            error: function() {
+                console.log('error');
+            }
+        });
+    });
+
+</script>
