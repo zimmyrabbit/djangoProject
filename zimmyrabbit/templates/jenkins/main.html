@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="shortcut icon" href="">
     <meta charset="UTF-8">
     <title>Jungkins</title>
     <style>
@@ -31,11 +32,15 @@
         <textarea class="content"></textarea>
         <input type="button" class="btnAjax" value="TEST" data-url="{% url 'zimmyrabbit:check_model'%}">
         <div class="svnlog"></div>
+        <input type="button" class="btnBuild" value="BUILD" data-url="{% url 'zimmyrabbit:request_build'%}">
+        <input type="text" class="id">
+        <input type="text" class="token">
 </body>
 </html>
 
 <script>
     let btnAjax = document.querySelector('.btnAjax');
+    let btnBuild = document.querySelector('.btnBuild');
 
     btnAjax.addEventListener('click', e=> {
         let content = document.querySelector('.content').value;
@@ -66,6 +71,35 @@
                 }
                 str += '</table>'
                 $(".svnlog").html(str);
+            },
+            error: function() {
+                console.log('error');
+            }
+        });
+    });
+
+    btnBuild.addEventListener('click', e=> {
+        let content = document.querySelector('.content').value;
+        let id = document.querySelector('.id').value;
+        let token = document.querySelector('.token').value;
+
+        let param = {
+            'buildJob' : content,
+            'id' : id,
+            'token' : token,
+        }
+
+        let url = btnBuild.getAttribute('data-url');
+
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(param),
+            headers: {
+                'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
+            },
+            success : function(data) {
+                
             },
             error: function() {
                 console.log('error');

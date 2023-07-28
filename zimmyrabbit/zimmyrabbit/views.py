@@ -4,6 +4,8 @@ import subprocess
 import requests
 import base64
 import json
+import time
+import os
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -24,8 +26,7 @@ def check_model(request) :
     content = jsonObject.get('content')
     scontent = sorted(set(content.split()))
 
-    
-    command = 'svn log --limit 10 \"D:/DevHomes/DevKMIProject/KMIProject/application/components/ast/' + content + '\"'
+    command = os.environ.get("SVN_ADDRESS") + content + '\"'
     print(command)
     output = subprocess.check_output(command, shell=True, text=True)
 
@@ -50,49 +51,66 @@ def check_model(request) :
     print("Dates:", dates)
     print("Commit Logs:", commit_logs)
     
-
     context = {'account': accounts, 'dates': dates, 'commitLogs' : commit_logs}
 
     return JsonResponse(context)
-    
-    '''
-    url = ''
-    username = ''
-    password = '' #token
-    
+
+def request_build(request):
+    jsonObject = json.loads(request.body) 
+
+    id = jsonObject.get('id')
+    token = jsonObject.get('token')
+    build_job = 'lis_' + jsonObject.get('buildJob')
+    jenkins_url = f'{os.environ.get("JENKINS_ADDRESS")}{build_job}/build'
+    print(f"build url : {jenkins_url}")
+    print(f"id : {id}")
+    print(f"token : {token}")
+
     # 인증 정보를 Base64로 인코딩하여 헤더에 추가
-    auth_header = base64.b64encode(f"{username}:{password}".encode('utf-8')).decode('utf-8')
+    auth_header = base64.b64encode(f"{id}:{token}".encode('utf-8')).decode('utf-8')
     headers = {'Authorization': f'Basic {auth_header}'}
-    
     headers['Content-Type'] = 'application/json'
-    
-    #response = requests.get(url, headers=headers)
-    response = requests.post(url, headers=headers)
-    
-    #200번대는 성공으로 판단
-    if response.status_code // 100 == 2:
-        url = ''
-        response = requests.post(url, headers=headers)
 
-        try:
-            response.raise_for_status()
-            data = response.json()
-            print(data['id'])
+    response = requests.post(jenkins_url, headers=headers)
+    if response.status_code == 201:
+        last_build_url = f'{os.environ.get("JENKINS_ADDRESS")}{build_job}/lastBuild/api/json'
+        response = requests.get(last_build_url, headers=headers)
 
-            url = ''
-            response = requests.post(url, headers=headers)
-            print(response.json())
-        except requests.exceptions.HTTPError as http_err:
-            print(f"HTTP 오류 발생: {http_err}")
-        except requests.exceptions.RequestException as req_err:
-            print(f"요청 오류 발생: {req_err}")
-        except requests.exceptions.JSONDecodeError as json_err:
-            print(f"JSON 디코드 오류 발생: {json_err}")
+        response.raise_for_status()
+        data = response.json()
+
+        print(f"빌드 시작. 빌드 번호: {data['id']}")
+        build_status = wait_for_build_completion(build_job, data['id'], headers)
+        print(f"빌드 완료. 빌드 상태: {build_status}")
+
+        return JsonResponse({'message': '빌드 성공', 'build_number': data['id']})
+        
     else:
-        print(f"API 호출 실패 - 상태 코드: {response.status_code}")
-    '''
-    #return redirect('zimmyrabbit:index')
+        print("빌드 실패")
 
+        return JsonResponse({'error': '빌드 실패'})
+        
+
+def wait_for_build_completion(build_job, build_number, headers) :
+    # 빌드가 완료될 때까지 주기적으로 빌드 상태를 확인하는 함수
+    while True:
+        build_status = get_build_status(build_job, build_number, headers)
+        if build_status is not None:
+            return build_status
+        time.sleep(5)  # 5초마다 빌드 상태를 확인
+    
+def get_build_status(build_job, build_number, headers):
+    # 빌드 상태 확인을 위한 Jenkins 빌드 정보 API 호출
+    api_url = f'{os.environ.get("JENKINS_ADDRESS")}{build_job}/{build_number}/api/json'
+    response = requests.get(api_url, headers=headers)
+    print(f"get_build_status response.status_code : {response.status_code}")
+    if response.status_code == 200:
+        build_info = json.loads(response.content.decode())
+        return build_info['result']
+    return None
+
+
+#drf class
 class BuildHistList(APIView):
     def get(self, request):
         buildHists = BuildHist.objects.all()
