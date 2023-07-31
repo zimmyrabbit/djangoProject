@@ -58,18 +58,24 @@
                 'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
             },
             success : function(data) {
-                
                 let str = '';
-                str += '<table>';
-
-                for(var i=0; i<data.account.length; i++) {
-                    str += "  <tr>";
-			 		str += "	  <td>" + data.account[i] + "</td>";
-			 		str += "   	  <td>" + data.commitLogs[i] + "</td>";
-                    str += "   	  <td>" + data.dates[i] + "</td>";
-			 		str += "  </tr>"
+                for(var i=0; i<data.length; i++) {
+                    str += "<h1>" + data[i].package + "</h1>"
+                    str += '<table>';
+                    str += '<tr>';
+                    str += '<th>Account</th>';
+                    str += '<th>Commit Logs</th>';
+                    str += '<th>Dates</th>';
+                    str += '</tr>';
+                    for(var j=0; j<data[i].context.account.length; j++) {
+                        str += "  <tr>";
+                        str += "	  <td>" + data[i].context.account[j] + "</td>";
+                        str += "   	  <td>" + data[i].context.commitLogs[j] + "</td>";
+                        str += "   	  <td>" + data[i].context.dates[j] + "</td>";
+                        str += "  </tr>"
+                    }
+                    str += '</table>'
                 }
-                str += '</table>'
                 $(".svnlog").html(str);
             },
             error: function() {

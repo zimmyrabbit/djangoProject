@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import Http404
+from datetime import datetime
 
 from .serializers import BuildHistSerializer
 from .models import BuildHist
@@ -26,34 +27,47 @@ def check_model(request) :
     content = jsonObject.get('content')
     scontent = sorted(set(content.split()))
 
-    command = os.environ.get("SVN_ADDRESS") + content + '\"'
-    print(command)
-    output = subprocess.check_output(command, shell=True, text=True)
+    all_contexts = []
 
-    # 결과 파싱하여 계정, 날짜, 커밋로그 저장
-    commits = []
-    lines = output.split('------------------------------------------------------------------------')
+    for i in range(0,len(scontent)): 
+        app = scontent[i][-2:]
+        comp = scontent[i].split("_")[0]
+        package = scontent[i].split("_")[1]
+        contentUrl = ''
+        if app == "xp" :
+            contentUrl = f'xpapps/{comp}/{package}'
+        else :
+            contentUrl = f'components/{comp}/{package}'
 
-    accounts = []
-    dates = []
-    commit_logs = []
+        command = os.environ.get("SVN_ADDRESS") + contentUrl + '\"'
+        print(command)
+        output = subprocess.check_output(command, shell=True, text=True)
 
-    for i in range(1, len(lines)-1):
-        line = lines[i].split(" | ")
-        account = line[1].strip()
-        date = line[2].strip()
-        commit_log = line[-1].strip()
-        accounts.append(account)
-        dates.append(date)
-        commit_logs.append(commit_log)
+        # 결과 파싱하여 계정, 날짜, 커밋로그 저장
+        commits = []
+        lines = output.split('------------------------------------------------------------------------')
 
-    print("Accounts:", accounts)
-    print("Dates:", dates)
-    print("Commit Logs:", commit_logs)
-    
-    context = {'account': accounts, 'dates': dates, 'commitLogs' : commit_logs}
+        accounts = []
+        dates = []
+        commit_logs = []
 
-    return JsonResponse(context)
+        for j in range(1, len(lines)-1):
+            line = lines[j].split(" | ")
+            account = line[1].strip()
+            date = line[2].strip()
+            commit_log = line[-1].strip()
+            accounts.append(account)
+            dates.append(date)
+            commit_logs.append(commit_log)
+
+        print("Accounts:", accounts)
+        print("Dates:", dates)
+        print("Commit Logs:", commit_logs)
+        
+        context = {'account': accounts, 'dates': dates, 'commitLogs' : commit_logs}
+        all_contexts.append({'context' : context, 'package' : package})
+
+    return JsonResponse(all_contexts, safe=False)
 
 def request_build(request):
     jsonObject = json.loads(request.body) 
