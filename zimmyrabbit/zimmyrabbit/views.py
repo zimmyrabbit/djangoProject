@@ -16,11 +16,11 @@ from datetime import datetime
 from .serializers import BuildHistSerializer
 from .models import BuildHist
 
-
+# main page
 def index(request) :
     return render(request, 'jenkins/main.html')
 
-
+# commit log check
 def check_model(request) :
     jsonObject = json.loads(request.body)
 
@@ -69,6 +69,7 @@ def check_model(request) :
 
     return JsonResponse(all_contexts, safe=False)
 
+# request build to jenkins
 def request_build(request):
     jsonObject = json.loads(request.body) 
 
@@ -104,7 +105,7 @@ def request_build(request):
 
         return JsonResponse({'error': '빌드 실패'})
         
-
+# build status check
 def wait_for_build_completion(build_job, build_number, headers) :
     # 빌드가 완료될 때까지 주기적으로 빌드 상태를 확인하는 함수
     while True:
@@ -112,7 +113,8 @@ def wait_for_build_completion(build_job, build_number, headers) :
         if build_status is not None:
             return build_status
         time.sleep(5)  # 5초마다 빌드 상태를 확인
-    
+
+# build info   
 def get_build_status(build_job, build_number, headers):
     # 빌드 상태 확인을 위한 Jenkins 빌드 정보 API 호출
     api_url = f'{os.environ.get("JENKINS_ADDRESS")}{build_job}/{build_number}/api/json'
