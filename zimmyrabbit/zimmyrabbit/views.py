@@ -75,7 +75,7 @@ def request_build(request):
 
     id = jsonObject.get('id')
     token = jsonObject.get('token')
-    build_job = 'lis_' + jsonObject.get('buildJob')
+    build_job = jsonObject.get('buildJob')
     jenkins_url = f'{os.environ.get("JENKINS_ADDRESS")}{build_job}/build'
     print(f"build url : {jenkins_url}")
     print(f"id : {id}")

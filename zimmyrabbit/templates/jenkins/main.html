@@ -85,31 +85,35 @@
     });
 
     btnBuild.addEventListener('click', e=> {
-        let content = document.querySelector('.content').value;
+        let contents = document.querySelector('.content').value;
         let id = document.querySelector('.id').value;
         let token = document.querySelector('.token').value;
 
-        let param = {
-            'buildJob' : content,
-            'id' : id,
-            'token' : token,
-        }
-
         let url = btnBuild.getAttribute('data-url');
+        
+        let conts = contents.split(/\r?\n/);
 
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : JSON.stringify(param),
-            headers: {
-                'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
-            },
-            success : function(data) {
-                
-            },
-            error: function() {
-                console.log('error');
+        conts.forEach(cont => {
+            let param = {
+                'buildJob' : cont,
+                'id' : id,
+                'token' : token,
             }
+
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : JSON.stringify(param),
+                headers: {
+                    'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
+                },
+                success : function(data) {
+                    
+                },
+                error: function() {
+                    console.log('error');
+                }
+            });
         });
     });
 
