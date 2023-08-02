@@ -35,6 +35,10 @@
         <input type="button" class="btnBuild" value="BUILD" data-url="{% url 'zimmyrabbit:request_build'%}">
         <input type="text" class="id">
         <input type="text" class="token">
+
+        <br><br>
+        <input type="button" class="btnUpload" value="BUILD_XP" id="upload_xp" data-url="{% url 'zimmyrabbit:request_build'%}">
+        <input type="button" class="btnUpload" value="BUILD_EXEC" id="upload_exec" data-url="{% url 'zimmyrabbit:request_build'%}">
 </body>
 </html>
 
@@ -117,4 +121,38 @@
         });
     });
 
+    document.addEventListener("DOMContentLoaded", function() {
+
+    var uploadButtons = document.querySelectorAll(".btnUpload");
+
+        uploadButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                var cont = this.getAttribute("id");
+                var url = this.getAttribute("data-url");
+                let id = document.querySelector('.id').value;
+                let token = document.querySelector('.token').value;
+
+                let param = {
+                        'buildJob' : cont,
+                        'id' : id,
+                        'token' : token,
+                    }
+                
+                $.ajax({
+                        url : url,
+                        type : 'POST',
+                        data : JSON.stringify(param),
+                        headers: {
+                            'X-CSRFToken': csrftoken // CSRF 토큰 요청 헤더에 포함
+                        },
+                        success : function(data) {
+                            
+                        },
+                        error: function() {
+                            console.log('error');
+                        }
+                    });
+            });
+        });
+  });
 </script>
