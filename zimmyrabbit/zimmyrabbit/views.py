@@ -39,9 +39,13 @@ def check_model(request) :
         else :
             contentUrl = f'components/{comp}/{package}'
 
-        command = os.environ.get("SVN_ADDRESS") + contentUrl + '\"'
-        print(command)
-        output = subprocess.check_output(command, shell=True, text=True)
+        update_command = os.environ.get("SVN_UPDATE_ADDRESS") + contentUrl + '\"'
+        upd_output = subprocess.check_output(update_command, shell=True, text=True)
+        print(upd_output)
+
+        log_command = os.environ.get("SVN_LOG_ADDRESS") + contentUrl + '\"'
+        print(log_command)
+        output = subprocess.check_output(log_command, shell=True, text=True)
 
         # 결과 파싱하여 계정, 날짜, 커밋로그 저장
         commits = []
